@@ -17,7 +17,7 @@ public class MainActivity extends AppCompatActivity {
     private RecyclerView mRecyclerView;
     private ArrayList<String> mDatas;
     private MyAdapter mAdapter;
-
+    //123
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
