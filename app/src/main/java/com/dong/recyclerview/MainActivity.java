@@ -31,71 +31,14 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
 
         initData();
-        itemTouchHelper = new ItemTouchHelper(new ItemTouchHelper.Callback() {
-            @Override
-            public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-                int dragFlags;
-                int swipeFlags;
-                if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
-                    dragFlags = ItemTouchHelper.UP |
-                            ItemTouchHelper.DOWN |
-                            ItemTouchHelper.LEFT |
-                            ItemTouchHelper.RIGHT;
-                    swipeFlags = 0;
-                } else {
-                    dragFlags = ItemTouchHelper.UP |
-                            ItemTouchHelper.DOWN;
-                    swipeFlags = 0;
-                }
-                return makeMovementFlags(dragFlags, swipeFlags);
-            }
-
-            @Override
-            public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
-                int fromPosition = viewHolder.getAdapterPosition();
-                int toPosition = target.getAdapterPosition();
-                if(fromPosition<toPosition){
-                    for (int i = fromPosition; i < toPosition; i++) {
-                        Collections.swap(mDatas,i,i+1);
-                    }
-                }else {
-                    for (int i = fromPosition; i > toPosition; i--) {
-                        Collections.swap(mDatas,i,i-1);
-                    }
-                }
-                recyclerView.getAdapter().notifyItemMoved(fromPosition,toPosition);
-                return true;
-            }
-
-            @Override
-            public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
-
-            }
-
-            @Override
-            public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
-                if(actionState != ItemTouchHelper.ACTION_STATE_IDLE){
-                    viewHolder.itemView.setBackgroundColor(Color.LTGRAY);
-                }
-                super.onSelectedChanged(viewHolder, actionState);
-            }
-
-            @Override
-            public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
-                super.clearView(recyclerView, viewHolder);
-                viewHolder.itemView.setBackgroundColor(0);
-            }
-
-            @Override
-            public boolean isLongPressDragEnabled() {
-                return false;
-            }
-        });
 
         mRecyclerView = (RecyclerView) findViewById(R.id.recyclerview);
         mRecyclerView.setLayoutManager(new LinearLayoutManager(this));
         mRecyclerView.setAdapter(mAdapter = new MyAdapter(this));
+
+        itemTouchHelper = new ItemTouchHelper(touchHelperCallback);
         itemTouchHelper.attachToRecyclerView(mRecyclerView);
+
         mAdapter.setData(mDatas);
         mAdapter.setOnItemClickListener(new MyAdapter.OnItemClickListener() {
             @Override
@@ -120,6 +63,70 @@ public class MainActivity extends AppCompatActivity {
 
         });
     }
+
+    ItemTouchHelper.Callback touchHelperCallback = new ItemTouchHelper.Callback() {
+
+        //设置是否处理拖拽和滑动事件
+        @Override
+        public int getMovementFlags(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+            int dragFlags;
+            int swipeFlags;
+            if (recyclerView.getLayoutManager() instanceof GridLayoutManager) {
+                dragFlags = ItemTouchHelper.UP |
+                        ItemTouchHelper.DOWN |
+                        ItemTouchHelper.LEFT |
+                        ItemTouchHelper.RIGHT;
+                swipeFlags = 0;
+            } else {
+                dragFlags = ItemTouchHelper.UP |
+                        ItemTouchHelper.DOWN;
+                swipeFlags = 0;
+            }
+            return makeMovementFlags(dragFlags, swipeFlags);
+        }
+
+        //拖拽过程不断回调此方法
+        @Override
+        public boolean onMove(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder, RecyclerView.ViewHolder target) {
+            int fromPosition = viewHolder.getAdapterPosition();
+            int toPosition = target.getAdapterPosition();
+            if(fromPosition<toPosition){
+                for (int i = fromPosition; i < toPosition; i++) {
+                    Collections.swap(mDatas,i,i+1);
+                }
+            }else {
+                for (int i = fromPosition; i > toPosition; i--) {
+                    Collections.swap(mDatas,i,i-1);
+                }
+            }
+            recyclerView.getAdapter().notifyItemMoved(fromPosition,toPosition);
+            return true;
+        }
+
+        @Override
+        public void onSwiped(RecyclerView.ViewHolder viewHolder, int direction) {
+
+        }
+
+        @Override
+        public void onSelectedChanged(RecyclerView.ViewHolder viewHolder, int actionState) {
+            if(actionState != ItemTouchHelper.ACTION_STATE_IDLE){
+                viewHolder.itemView.setBackgroundColor(Color.LTGRAY);
+            }
+            super.onSelectedChanged(viewHolder, actionState);
+        }
+
+        @Override
+        public void clearView(RecyclerView recyclerView, RecyclerView.ViewHolder viewHolder) {
+            super.clearView(recyclerView, viewHolder);
+            viewHolder.itemView.setBackgroundColor(0);
+        }
+
+        @Override
+        public boolean isLongPressDragEnabled() {
+            return false;
+        }
+    };
 
     private void initData() {
         mDatas = new ArrayList<>();
